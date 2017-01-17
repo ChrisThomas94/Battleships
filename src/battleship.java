@@ -4,6 +4,7 @@
 public class battleship {
 
     static int length = 5;
+    String[] coord;
     String[][] coord1;
     String[][] coord2;
     String[][] coord3;
@@ -22,6 +23,10 @@ public class battleship {
 
     public boolean getIsAlive(){
         return this.isAlive;
+    }
+
+    public void setCoord(String[] coord){
+        this.coord = coord;
     }
 
     public void setCoord1(String[][] coord){
@@ -63,4 +68,5 @@ public class battleship {
     public String[][] getCoord5(){
         return this.coord5;
     }
+
 }
