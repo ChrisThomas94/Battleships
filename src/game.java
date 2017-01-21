@@ -4,7 +4,7 @@
 
 import java.util.*;
 
-public class game {
+public class Game {
 
     private static String[][] createBoard(String[][] board){
 
@@ -44,7 +44,7 @@ public class game {
         //if position is too close to edge then set orientation accordingly
         if(y>length && x>length) {
             //can be either but must be placed in reverse
-            orientation = "error";
+            orientation = "reverse";
 
         } else if(x>length){
             //battleship must be vertical
@@ -62,81 +62,97 @@ public class game {
         return orientation;
     }
 
-    private static String[][] placeBattleship(String[][] board, battleship b){
+    private static String[][] placeShip(String[][] board, Ship S){
 
-        //String[][] map = board;
         Random rand = new Random();
 
-
-        //pick random position to place ship
+        //pick random position to place Ship
         int startingPointX = rand.nextInt(9);
         int startingPointY = rand.nextInt(9);
 
-        HashSet<String> set = new HashSet<String>();
+        HashSet<String> coord = new HashSet<>();
 
+        String orientation = setOrientation(startingPointX, startingPointY, S.getLength());
 
-        //int[] ship = new int[startingPointX, startingPointY];
-
-        String orientation = setOrientation(startingPointX, startingPointY, b.getLength());
-
-        Boolean valid = checkBoard(board, startingPointX, startingPointY, orientation, b.getLength());
+        Boolean valid = checkBoard(board, startingPointX, startingPointY, orientation, S.getLength());
 
         if(valid) {
 
-            if (orientation.equals("vertical")) {
-                for (int i = 0; i < b.getLength(); i++) {
-                    board[startingPointX][startingPointY + i] = "X";
-                    //b.setCoord([startingPointX][startingPointY + i]);
-                }
+            switch(orientation){
+                case "vertical":
+                    for (int i = 0; i < S.getLength(); i++) {
+                        board[startingPointX][startingPointY + i] = "X";
+                        coord.add(Integer.toString(startingPointX) + Integer.toString(startingPointY + i));
+                    }
+                    break;
 
-            } else if (orientation.equals("horizontal")) {
-                for (int i = 0; i < b.getLength(); i++) {
-                    board[startingPointX + i][startingPointY] = "X";
-                }
+                case "horizontal":
+                    for (int i = 0; i < S.getLength(); i++) {
+                        board[startingPointX + i][startingPointY] = "X";
+                        coord.add(Integer.toString(startingPointX + i) + Integer.toString(startingPointY));
+                    }
+                    break;
 
-            } else if (orientation.equals("error")) {
-                for (int i = 0; i < b.getLength(); i++) {
-                    board[startingPointX][startingPointY - i] = "X";
-                }
+                case "reverse":
+                    for (int i = 0; i < S.getLength(); i++) {
+                        board[startingPointX][startingPointY - i] = "X";
+                        coord.add(Integer.toString(startingPointX) + Integer.toString(startingPointY - i));
+                    }
+                    break;
 
-            } else {
-                for (int i = 0; i < b.getLength(); i++) {
-                    board[startingPointX + i][startingPointY] = "X";
-                }
+                default:
+                    for (int i = 0; i < S.getLength(); i++) {
+                        board[startingPointX + i][startingPointY] = "X";
+                        coord.add(Integer.toString(startingPointX + i) + Integer.toString(startingPointY));
+                    }
+                    break;
+
             }
+
+            //System.out.println("coord" + coord);
+
+            S.setCoord(coord);
+
         } else {
             //retry
-            placeBattleship(board, b);
+            //System.out.println("I had to retry.");
+            placeShip(board, S);
         }
+
+
 
         return board;
     }
 
     private static Boolean checkBoard(String[][] map, int startingPointX, int startingPointY, String orientation, int length){
 
-        if(orientation.equals("vertical")){
-            for(int i = 0; i<length; i++){
-                if(map[startingPointX][startingPointY + i].equals("X")){
-                    return false;
+        switch (orientation){
+            case "vertical":
+                for(int i = 0; i<length; i++){
+                    if(map[startingPointX][startingPointY + i].equals("X")){
+                        return false;
+                    }
                 }
-            }
+                break;
 
-        } else if(orientation.equals("horizontal")) {
-            for(int i = 0; i<length; i++){
-                if(map[startingPointX+i][startingPointY].equals("X")){
-                    return false;
+            case "horizontal":
+                for(int i = 0; i<length; i++){
+                    if(map[startingPointX+i][startingPointY].equals("X")){
+                        return false;
+                    }
                 }
-            }
+                break;
 
-        } else if(orientation.equals("error")){
-            for(int i = 0; i<length; i++){
-                if(map[startingPointX][startingPointY-i].equals("X")){
-                    return false;
+            case "reverse":
+                for(int i = 0; i<length; i++){
+                    if(map[startingPointX][startingPointY-i].equals("X")){
+                        return false;
+                    }
                 }
-            }
+                break;
 
-        } else {
-            for(int i = 0; i<length; i++){
+            default:
+                for(int i = 0; i<length; i++){
                 if(map[startingPointX+i][startingPointY].equals("X")){
                     return false;
                 }
@@ -146,17 +162,13 @@ public class game {
         return true;
     }
 
-    private static String[][] setUpBoard(String[][] board, battleship[] totalBattleships, destroyer[] totalDestroyers){
+    private static String[][] setUpBoard(String[][] board, Ship[] setOfBattleships, Ship[] setOfDestroyers){
 
-        for(int i = 0; i<totalBattleships.length;i++){
+        for(Ship S : setOfBattleships)
+            placeShip(board, S);
 
-            placeBattleship(board, totalBattleships[i]);
-        }
-
-        for(int i=0; i<totalDestroyers.length;i++){
-
-            //placeDestroyer(board, totalDestroyers[i]);
-        }
+        for(Ship D : setOfDestroyers)
+            placeShip(board, D);
 
         return board;
     }
@@ -172,9 +184,7 @@ public class game {
         int in = 0;
         if(input.hasNextInt()){
             in = input.nextInt();
-            if(in>0 && in<4){
-                in = in;
-            }else{
+            if(in<0 || in>3){
                 System.out.println("Invalid Entry, Please Try Again!!!\n");
             }
         }else{
@@ -186,14 +196,19 @@ public class game {
 
     private static Boolean shotValid(String quantity)
     {
-        int shot = Integer.parseInt(quantity);
+        try {
+            int shot = Integer.parseInt(quantity);
 
-        if(shot>0 && shot<11)
-        {
-            shot = shot;
-            return true;
-        } else {
-            System.out.println("Invalid Entry, Please Try Again!!!!\n");
+            if(shot>0 && shot<11)
+            {
+                return true;
+            } else {
+                System.out.println("Invalid Y Coordinate, Please Try Again!\n");
+                return false;
+            }
+
+        } catch(NumberFormatException e){
+            System.out.println("Invalid Y Coordinate, Please Try Again!\n");
             return false;
         }
     }
@@ -214,7 +229,7 @@ public class game {
         return result;
     }
 
-    private static void getInput(int[] shot){
+    private static String getInput(int[] shot){
 
         Scanner input = new Scanner(System.in);
         System.out.println("Enter a Coordinate: ");
@@ -222,6 +237,7 @@ public class game {
         int numb = 0;
         String choice = input.next();
         String column = choice.substring(0,1);
+        Boolean xValid = true;
 
         switch(column){
             case "A": numb = 0;
@@ -244,26 +260,78 @@ public class game {
                 break;
             case "J": numb = 9;
                 break;
-            default: System.out.println("Invalid Entry, Please Try Again!");
+            default: System.out.println("Invalid X Coordinate, Please Try Again!");
+                xValid = false;
                 break;
         }
 
 
-        if(shotValid(choice.substring(1,choice.length()))){
+        if(xValid && shotValid(choice.substring(1,choice.length()))){
             shot[0] = numb;
             shot[1] = Integer.parseInt(choice.substring(1, choice.length()));
             shot[1]--;
-        }else{
+
+            return (Integer.toString(shot[1]) + Integer.toString(shot[0]));
 
         }
 
+        return "error";
     }
 
-    private static void beginGame(String[][] board, String[][] answers){
+    private static Boolean checkSunk(HashSet fired, Ship[] battleships, Ship[] destroyers){
+
+        HashSet<String> shipPosition;
+        int battleshipsLeft = 0;
+        int destroyersLeft = 0;
+
+        for(int i = 0; i<battleships.length; i++){
+
+            shipPosition = battleships[i].getCoord();
+
+            if(fired.size() >= shipPosition.size() && fired.containsAll(shipPosition)){
+                battleships[i].setIsAlive(false);
+            } else {
+
+            }
+            if(!battleships[i].getIsAlive()){
+                battleshipsLeft++;
+            }
+        }
+
+        for(int i = 0; i<destroyers.length; i++){
+
+            shipPosition = destroyers[i].getCoord();
+
+            if(fired.size() >= shipPosition.size() && fired.containsAll(shipPosition)){
+                destroyers[i].setIsAlive(false);
+            } else {
+
+            }
+
+            if(!destroyers[i].getIsAlive()){
+                destroyersLeft++;
+            }
+        }
+
+        System.out.println("");
+        System.out.println("SUNK LIST");
+        System.out.println("Battleships sunk: " + battleshipsLeft + "/" + battleships.length);
+        System.out.println("Destroyers sunk: " + destroyersLeft + "/" + destroyers.length);
+        System.out.println("");
+
+        if(battleshipsLeft == battleships.length && destroyersLeft == destroyers.length){
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void beginGame(String[][] board, String[][] answers, Ship[] battleships, Ship[] destroyers){
 
         Scanner input = new Scanner(System.in);
         int[] shot = new int[2];
         Boolean done = false;
+        HashSet<String> fired = new HashSet<>();
 
         while(!done){
             showBoard(board);
@@ -271,14 +339,23 @@ public class game {
 
             int choice = getMenuInput(input);
             if(choice == 1){
-                getInput(shot);
+                String in = getInput(shot);
+                if(!in.equals("error")){
+                    fired.add(in);
 
-                if(fireShot(shot,answers)){
-                    board[shot[1]][shot[0]]="H";
+                    if(fireShot(shot,answers)){
+                        board[shot[1]][shot[0]]="H";
 
-                }else {
-                    board[shot[1]][shot[0]] = "M";
+                    }else {
+                        board[shot[1]][shot[0]] = "M";
+                    }
+
+                    done = checkSunk(fired, battleships, destroyers);
+                } else {
+
                 }
+
+
             }else if(choice == 2){
                 showBoard(answers);
 
@@ -287,6 +364,9 @@ public class game {
                 System.out.println("Thanks For Playing");
             }
         }
+
+        System.out.println("You Win!");
+
     }
 
     public static void main(String[] arg){
@@ -295,33 +375,37 @@ public class game {
         int columns = 10;
         int noBattleships = 1;
         int noDestroyers = 2;
+        int battleshipLength = 5;
+        int destroyerLength = 4;
 
         String[][] board = new String[rows][columns];
         String[][] playingBoard = new String[rows][columns];
         String[][] answers;
 
-        battleship[] totalBattleships = new battleship[noBattleships];
-        destroyer[] totalDestroyers = new destroyer[noDestroyers];
+        Ship[] setOfBattleships = new Ship[noBattleships];
+        Ship[] setOfDestroyers = new Ship[noDestroyers];
 
         for(int i = 0; i<noBattleships;i++){
 
-            battleship b = new battleship();
-            totalBattleships[i] = b;
+            Ship B = new Ship();
+            B.setLength(battleshipLength);
+            setOfBattleships[i] = B;
         }
 
         for(int i=0; i<noDestroyers;i++){
 
-            destroyer d = new destroyer();
-            totalDestroyers[i] = d;
+            Ship D = new Ship();
+            D.setLength(destroyerLength);
+            setOfDestroyers[i] = D;
         }
 
         board = createBoard(board);
 
-        answers = setUpBoard(board, totalBattleships, totalDestroyers);
+        answers = setUpBoard(board, setOfBattleships, setOfDestroyers);
 
         playingBoard = createBoard(playingBoard);
 
-        beginGame(playingBoard, answers);
+        beginGame(playingBoard, answers, setOfBattleships, setOfDestroyers);
 
     }
 }

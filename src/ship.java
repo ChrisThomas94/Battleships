@@ -3,11 +3,11 @@ import java.util.HashSet;
 /**
  * Created by Chris on 17-Jan-17.
  */
-public class ship {
+public class Ship {
 
-    static int length;
+    int length;
     Boolean isAlive = true;
-    HashSet<String> pos = new HashSet<String>();
+    HashSet<String> coord = new HashSet<String>();
 
     public int getLength() {
         return this.length;
@@ -23,6 +23,14 @@ public class ship {
 
     public boolean getIsAlive(){
         return this.isAlive;
+    }
+
+    public void setCoord(HashSet<String> coord){
+        this.coord = coord;
+    }
+
+    public HashSet<String> getCoord(){
+        return coord;
     }
 
 }
