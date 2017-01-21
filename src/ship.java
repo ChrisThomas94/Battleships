@@ -1,16 +1,20 @@
 import java.util.HashSet;
 
 /**
- * Created by Chris on 16-Jan-17.
+ * Created by Chris on 17-Jan-17.
  */
-public class destroyer {
+public class ship {
 
-    static int length = 4;
+    static int length;
     Boolean isAlive = true;
     HashSet<String> pos = new HashSet<String>();
 
-    public int getLength(){
+    public int getLength() {
         return this.length;
+    }
+
+    public void setLength(int length){
+        this.length = length;
     }
 
     public void setIsAlive(boolean destroyed){
@@ -20,7 +24,5 @@ public class destroyer {
     public boolean getIsAlive(){
         return this.isAlive;
     }
-
-
 
 }

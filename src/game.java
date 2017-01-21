@@ -72,7 +72,10 @@ public class game {
         int startingPointX = rand.nextInt(9);
         int startingPointY = rand.nextInt(9);
 
-        int[] ship = new int[startingPointX, startingPointY];
+        HashSet<String> set = new HashSet<String>();
+
+
+        //int[] ship = new int[startingPointX, startingPointY];
 
         String orientation = setOrientation(startingPointX, startingPointY, b.getLength());
 
@@ -143,23 +146,16 @@ public class game {
         return true;
     }
 
-    private static String[][] setUpBoard(String[][] board, int noBattleships, int noDestroyers){
+    private static String[][] setUpBoard(String[][] board, battleship[] totalBattleships, destroyer[] totalDestroyers){
 
-        battleship[] battleships = new battleship[noBattleships];
-        destroyer[] destroyers = new destroyer[noDestroyers];
+        for(int i = 0; i<totalBattleships.length;i++){
 
-        for(int i = 0; i<noBattleships;i++){
-
-            battleship b = new battleship();
-            placeBattleship(board, b);
-            battleships[i] = b;
+            placeBattleship(board, totalBattleships[i]);
         }
 
-        for(int i=0; i<noDestroyers;i++){
+        for(int i=0; i<totalDestroyers.length;i++){
 
-            destroyer d = new destroyer();
-            placeDestroyer(board, d);
-            destroyers[i] = d;
+            //placeDestroyer(board, totalDestroyers[i]);
         }
 
         return board;
@@ -304,9 +300,24 @@ public class game {
         String[][] playingBoard = new String[rows][columns];
         String[][] answers;
 
+        battleship[] totalBattleships = new battleship[noBattleships];
+        destroyer[] totalDestroyers = new destroyer[noDestroyers];
+
+        for(int i = 0; i<noBattleships;i++){
+
+            battleship b = new battleship();
+            totalBattleships[i] = b;
+        }
+
+        for(int i=0; i<noDestroyers;i++){
+
+            destroyer d = new destroyer();
+            totalDestroyers[i] = d;
+        }
+
         board = createBoard(board);
 
-        answers = setUpBoard(board, noBattleships, noDestroyers);
+        answers = setUpBoard(board, totalBattleships, totalDestroyers);
 
         playingBoard = createBoard(playingBoard);
 

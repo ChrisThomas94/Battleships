@@ -14,7 +14,7 @@ public class Coordinates {
     public int getColumn(){
         return column;
     }
-    
+
     public  int getRow(){
         return row;
     }
